@@ -1,0 +1,32 @@
+version: "2"
+
+services:
+  ouroboros:
+    image: github.com/tesarwijaya/ouroboros:latest
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: dockerfiles/app.docker
+    container_name: "ouroboros"
+    working_dir: /usr/src/app
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      - ouroboros-sql
+
+  ouroboros-sql:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "${APP_SQL_DB_PASSWORD}"
+      POSTGRES_USER: "${APP_SQL_DB_USERNAME}"
+      POSTGRES_DB: "${APP_SQL_DB_NAME}"
+    ports:
+      - "${APP_SQL_DB_PORT}:${APP_SQL_DB_PORT}"
+
+networks:
+  default:
+    external:
+      name: ouroboros-bridge
+    driver: bridge
